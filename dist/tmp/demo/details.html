@@ -1,0 +1,24 @@
+<!-- 大盒子 -->
+<div class="block-box">
+    <div class="col-12">
+        <div class="block">
+            <!-- 选项卡 -->
+            <div id="details">
+                <div class="tab-panel"></div>
+                <div class="tab-panel"></div>
+                <div class="tab-panel"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    (() => {
+        Eadmin.tab('#details', [
+            {
+                name   : '课题详情',
+                active : true,
+                load   :  './tmp/details/topics.html',
+            },
+        ]);
+    })();
+</script>

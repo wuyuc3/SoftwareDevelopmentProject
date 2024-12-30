@@ -1,0 +1,64 @@
+<form id="addForm">
+    <!-- 大盒子 -->
+        <div class="col-12">
+            <!-- 表单组盒子 -->
+            <div class="form-group">
+                <h4 class="title">课题ID</h4>
+                <input
+                    id="topicId"
+                    name="topicId"
+                    type="text"
+                    placeholder="请确认课题ID"
+                    required>
+            </div>
+        </div>
+        <div class="col-3"></div>
+        <!-- 添加保存按钮 -->
+        <div class="col-12">
+            <button type="button" id="saveBtn" class="hl" style="margin-left: 180px;">确定通过该课题</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    document.getElementById('saveBtn').addEventListener('click', function() {
+        // 获取表单数据
+        const topicID = document.getElementById('topicId').value;
+
+        // 简单的前端表单验证
+        if (!topicID) {
+            alert('请填写课题ID');
+            return;
+        }
+
+        // 构建请求体
+        const requestData = {
+            topicId : parseInt(topicID),
+        };
+
+        // 发送 POST 请求
+        fetch('http://localhost:8080/api/topics/byApply', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => response.json())
+        .then(response => {
+            if (response.code == 100) {
+                // 数据提交成功，关闭弹窗
+                alert('课题通过成功！');
+                // 此处可以通过调用外部刷新表格的回调来更新主页面表格
+                // 比如：Tb.refresh();
+                location.reload();
+            } else {
+                alert('提交失败，请稍后再试。');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('请求失败，请稍后再试。');
+        });
+    });
+</script>

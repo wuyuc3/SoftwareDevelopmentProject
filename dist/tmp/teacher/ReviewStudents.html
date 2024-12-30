@@ -1,0 +1,140 @@
+<!-- 大盒子 -->
+<div class="block-box">
+    <!-- 布局 -->
+    <div class="col-12">
+        <!-- 具体盒子容器 -->
+        <div class="block">
+            <!-- 表格容器 -->
+            <div id="table"></div>
+        </div>
+    </div>
+</div>
+<script>
+    
+    (() => {
+        var localTeacherId = localStorage.getItem('teacherId');
+        if(!localTeacherId){
+            alert('请先登录');
+            return;
+        }
+        // 表格参数
+        let param = {};
+        // 表格基础参数配置
+        param.config = {
+            // 指定复选框绑定的字段名，如果不指定该项则无复选框
+            //checkbox : 'studentId',
+            // 表格列配置，默认不支持列配置
+            column_config : true,
+            // 是否支持导出excel，默认不支持导出excel
+            export_excel  : true,
+            // 固定首尾列，默认不开启
+            fixed : {
+                // 首列
+                first : true,
+                // 尾列
+                last  : true
+            },
+            // 分页参数配置
+            // 某些列表不需要分页，则配置该项为false，则表格将没有分页相关的显示
+            page : false,
+            //data : '/api/demo/'
+            data  : 'http://127.0.0.1:8080/api/students/info?teacherId=' + localTeacherId
+        };
+        // 按钮栏配置，数组格式，同时支持配置多个功能按钮
+        param.button = [
+        ];
+        // 表格列配置
+        param.column = [
+            {
+                // 显示的表头
+                name  : '学生ID',
+                // 调取的字段
+                field : 'studentId'
+            },
+            {
+                // 显示的表头
+                name  : '学生姓名',
+                // 调取的字段
+                field : 'studentName',
+                search : true,
+                hl : true
+            },
+            {
+                // 显示的表头
+                name  : '联系方式',
+                // 调取的字段
+                field : 'contactInfo'
+            },
+            {
+                // 显示的表头
+                name  : '学生简历',
+                // 调取的字段
+                field : 'resume',
+                search : true,
+                hl : true
+            },
+            {
+                name : '操作',
+                // 设置button参数指定当前列为按钮列，该配置一般用在表格的最后一列
+                // 注入当前行的数据作为参数，用来拼接一些参数
+                button : (row) => {
+                    // 按钮数组
+                    let btns = [];
+                    // 第一个按钮展示打开弹窗
+                    btns[0] = {
+                        // 按钮名称
+                        name : '通过该学生',
+                        // 按钮图标，如果不需要可以不设置该参数
+                        icon : 'ri-eye-line',
+                        // 打开弹窗，兼容弹窗所有参数，详细弹窗参数请查看弹窗章节文档
+                        confirm : true,
+                        refresh : true,
+                        open : {
+                            // 弹窗标题
+                            title : '确认信息-通过该学生',
+                            // 宽度
+                            width : '20%',
+                            height : '40%',
+                            // 弹窗链接
+                            url   : './tmp/teacher/access.html',
+                        }
+                    };
+                    // 第二个按钮展示点击后调用接口操作
+                    btns[1] = {
+                        // 按钮名称
+                        name : '拒绝该学生',
+                        // 按钮图标，如果不需要可以不设置该参数
+                        icon : 'ri-delete-bin-line',
+                        // 打开弹窗，兼容弹窗所有参数，详细弹窗参数请查看弹窗章节文档
+                        confirm : true,
+                        refresh : true,
+                        open : {
+                            // 弹窗标题
+                            title : '确认信息-拒绝该学生',
+                            // 宽度
+                            width : '20%',
+                            height : '40%',
+                            // 弹窗链接
+                            url   : './tmp/teacher/refuse.html',
+                        }
+                    };
+                    // 个别情况需要根据某一字段判断按钮是否可点击
+                    // 下面演示根据参数来设定某一按钮的个别参数
+                    // 下面的例子就是如果power字段为0，则编辑按钮不可点击
+                    if (row.power == 0)
+                        btns[0].disabled = true;
+                    // 最后一定要return出去
+                    return btns;
+                }
+            }
+        ];
+        param.search = {
+            
+        };
+        // 表格创建完成后的回调，默认注入API接口返回的数据作为参数
+        param.callback = (response) => {
+        }
+        let Tb = Eadmin.table('#table', param);
+
+    })();
+</script>

@@ -1,0 +1,78 @@
+<form id="addForm">
+    <!-- 大盒子 -->
+    <div class="block-box">
+        <div class="col-12">
+            <!-- 表单组盒子 -->
+            <div class="form-group">
+                <h4 class="title">学生ID</h4>
+                <input
+                    id="studentId"
+                    name="studentId"
+                    type="text"
+                    placeholder="请确认学生ID"
+                    required>
+            </div>
+        </div>
+        <div class="col-12">
+            <!-- 表单组盒子 -->
+            <div class="form-group">
+                <h4 class="title">分数</h4>
+                <input
+                    id="score"
+                    name="score"
+                    type="text"
+                    placeholder="请为该学生打分"
+                    required>
+            </div>
+        </div>
+        <div class="col-3"></div>
+        <!-- 添加保存按钮 -->
+        <div class="col-12">
+            <button type="button" id="saveBtn" class="hl" style="margin-left: 140px;">确定提交分数</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    document.getElementById('saveBtn').addEventListener('click', function() {
+        // 获取表单数据
+        const studentID = document.getElementById('studentId').value;
+        const Score = document.getElementById('score').value;
+        // 简单的前端表单验证
+        if (!Score|| !studentID) {
+            alert('所有字段都为必填项，请填写完整。');
+            return;
+        }
+
+        // 构建请求体
+        const requestData = {
+            studentId : parseInt(studentID),
+            score : parseInt(Score),
+        };
+
+        // 发送 POST 请求
+        fetch('http://localhost:8080/api/scoring', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => response.json())
+        .then(response => {
+            if (response.code == 100) {
+                // 数据提交成功，关闭弹窗
+                alert('打分成功！');
+                // 此处可以通过调用外部刷新表格的回调来更新主页面表格
+                // 比如：Tb.refresh();
+                location.reload();
+            } else {
+                alert('提交失败，请稍后再试。');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('请求失败，请稍后再试。');
+        });
+    });
+</script>

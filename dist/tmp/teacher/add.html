@@ -1,0 +1,98 @@
+<form id="addForm">
+    <!-- 大盒子 -->
+    <div class="block-box">
+        <!-- 响应盒子，bootstrap -->
+        <div class="col-12">
+            <!-- 表单组盒子 -->
+            <div class="form-group">
+                <h4 class="title">课题名称</h4>
+                <input
+                    id="topicName"
+                    name="topicName"
+                    type="text"
+                    placeholder="请输入课题名称"
+                    required>
+            </div>
+        </div>
+        <div class="col-12">
+            <!-- 表单组盒子 -->
+            <div class="form-group">
+                <h4 class="title">课题类型</h4>
+                <input
+                    id="topicType"
+                    name="topicType"
+                    type="text"
+                    placeholder="请输入课题类型"
+                    required>
+            </div>
+        </div>
+        <div class="col-12">
+            <!-- 表单组盒子 -->
+            <div class="form-group">
+                <h4 class="title">课题描述</h4>
+                <input
+                    id="description"
+                    name="description"
+                    type="text"
+                    placeholder="请输入课题描述"
+                    required>
+            </div>
+        </div>
+        <!-- 添加保存按钮 -->
+        <div class="col-12">
+            <button type="button" id="saveBtn" class="hl" style="margin-left: 180px;">确定保存数据</button>
+        </div>
+    </div>
+</form>
+
+<script>
+    document.getElementById('saveBtn').addEventListener('click', function() {
+        // 获取表单数据
+        const topicName = document.getElementById('topicName').value;
+        const topicType = document.getElementById('topicType').value;
+        const description = document.getElementById('description').value;
+        const teacherID = localStorage.getItem('teacherId');
+        // 简单的前端表单验证
+        if(!teacherID){
+            alert('请先以教师身份登录');
+            return;
+        }
+        if (!topicName || !topicType || !description) {
+            alert('所有字段都为必填项，请填写完整。');
+            return;
+        }
+        
+
+        // 构建请求体
+        const requestData = {
+            topicName: topicName,
+            topicType: topicType,
+            description: description,
+            teacherId: parseInt(teacherID) // 确保是数字
+        };
+
+        // 发送 POST 请求
+        fetch('http://localhost:8080/api/topics/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => response.json())
+        .then(response => {
+            if (response.code == 100) {
+                // 数据提交成功，关闭弹窗
+                alert('课题添加成功！');
+                location.reload();
+
+            } else {
+                alert('提交失败，请稍后再试。');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('请求失败，请稍后再试。');
+        });
+    });
+</script>

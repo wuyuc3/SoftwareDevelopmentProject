@@ -1,0 +1,174 @@
+<!-- 大盒子 -->
+<div class="block-box">
+    
+    <div class="col-12">
+        <!-- 具体盒子容器 -->
+        <div class="block">
+            <!-- 表格容器 -->
+            <div id="table"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (() => {
+        let param = {};
+        // 表格基础参数配置
+        param.config = {
+            // 指定复选框绑定的字段名，如果不指定该项则无复选框
+            //checkbox : 'topicId',
+            // 表格列配置，默认不支持列配置
+            column_config : true,
+            export_excel  : true,
+            // 固定首尾列，默认不开启
+            fixed : {
+                // 首列
+                first : true,
+                // 尾列
+                last  : true
+            },
+            // 分页参数配置
+            // 某些列表不需要分页，则配置该项为false，则表格将没有分页相关的显示
+
+            page : false,
+            
+            //data : 'api/demo'
+            data : 'http://127.0.0.1:8080/api/topics/display'
+        };
+        // 按钮栏配置，数组格式，同时支持配置多个功能按钮
+        param.button = [
+            // 第一个按钮展示的是点击后打开一个弹窗
+            {
+                // 按钮名称
+                name : '新建课题申请',
+                // 按钮图标，如果不需要图标可以不设置该参数
+                icon : 'ri-add-circle-line',
+                // 点击后打开弹窗，更详细的弹窗参数请参考弹窗页面
+                open : {
+                    // 弹窗的标题
+                    title  : '新建课题申请',
+                    // 弹窗的宽度
+                    width  : 360,
+                    // 弹窗的高度
+                    height : '45%',
+                    // 弹窗的URL地址
+                    url    : './tmp/teacher/add.html',
+                    // 弹窗的操作按钮配置
+                    btn    : [
+
+                    ],
+                    // 弹窗关闭时的回调
+                    close : (change) => {
+                        // 判断弹窗里的表单内容是否有变化，如果有变化则刷新表格
+                        // 比如打开弹窗里是新建数据，提交后希望表格数据可以刷新
+                        // 就可以通过change为true来判断是否需要刷新表格，避免每次关闭弹窗都刷新表格，导致体验不好
+                        if (change) Tb.refresh();
+                    }
+                }
+            },
+        ];
+        // 表格列配置
+        param.column = [
+            {
+                // 显示的表头
+                name  : '课题ID',
+                // 调取的字段
+                field : 'topicId'
+            },
+            {
+                // 显示的表头
+                name  : '教师名称',
+                // 调取的字段
+                field : 'teacherName'
+            },
+            {
+                // 显示的表头
+                name  : '课题名称',
+                // 调取的字段
+                field : 'topicName',
+                search : true,
+                hl : true
+            },
+            {
+                // 显示的表头
+                name   : '课题类型',
+                // 调取的字段
+                field  : 'topicType',
+                search : true,
+                hl : true
+            },
+            {
+                // 显示的表头
+                name   : '课题描述',
+                // 调取的字段
+                field  : 'description',
+                // 设置search为true，表示该字段支持搜索
+                search : true,
+                hl : true
+            },
+            {
+                // 显示的表头
+                name   : '申请状态',
+                // 调取的字段
+                field  : 'applyStatus',
+                // 设置 format 参数，可以自定义格式化字段显示的效果
+                format : (row) => {
+                    // 这里是使用状态样式显示该字段
+                    // 状态样式具体参数请参考status.html文件或者查看状态相关文档
+                    let [code, name] = [1, '']
+                    if(row.applyStatus === '已申请'){
+                        code = 1;
+                        name = '已申请';
+                    }
+                    else if(row.applyStatus === '已通过'){
+                        code = 2;
+                        name = '已通过';
+                    }
+                    return `<span class="status">
+                                ${name}<i class="color-${code}"></i>
+                            </span>`;
+                }
+            },
+            
+            {
+                name : '操作',
+                // 设置button参数指定当前列为按钮列，该配置一般用在表格的最后一列
+                // 注入当前行的数据作为参数，用来拼接一些参数
+                button : (row) => {
+                    // 按钮数组
+                    let btns = [];
+                    // 第一个按钮展示打开弹窗
+                    btns[0] = {
+                        // 按钮名称
+                        name : '课题详情',
+                        // 按钮图标，如果不需要可以不设置该参数
+                        icon : 'ri-eye-line',
+                        // 打开弹窗，兼容弹窗所有参数，详细弹窗参数请查看弹窗章节文档
+                        open : {
+                            // 弹窗标题
+                            title : '查看课题详情',
+                            // 宽度
+                            width : '80%',
+                            // 弹窗链接
+                            url   : './tmp/details/topics.html',
+                            // 右侧弹出
+                            style : 'popup'
+                        }
+                    };
+                    if (row.power == 0)
+                        btns[0].disabled = true;
+                    // 最后一定要return出去
+                    return btns;
+                }
+            }
+        ];
+        param.callback = (response) => {
+            console.log(response);
+            // 处理返回数据
+            const list = response.data.list || [];
+            // 更新表格数据
+            Tb.setData(list);
+        };
+
+    let Tb = Eadmin.table('#table', param);
+    })();
+</script>

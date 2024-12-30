@@ -1,0 +1,108 @@
+<div class="block-box">
+    <div class="col-12"></div>
+    <div class="col-12"></div>
+    <div class="col-12"></div>
+    <div class="col-6">
+        <!-- 具体盒子容器 -->
+        <div class="block">
+            <h3>上传毕业设计材料</h3>
+            <!-- 上传组件容器 -->
+            <div id="upload-1"></div>
+            <div class="col-6"></div>
+            <button style="margin-left: 605px;" class="hl" onclick="callAPI()">上传</button>
+            
+        </div>
+    </div>
+    <div class="col-6" >
+        <div class="block block-data" data-color="1" style="height: 300px;">
+            <h3>毕业设计最终得分为</h5>
+            <div class="col-6">
+            </div>
+            <div class="col-6">
+            </div>
+            <div class="col-6">
+            </div>
+            <div class="col-6">
+            </div>
+            <div class="data">
+                <span class="num" id="score" >--</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    (() => {
+        // 获取学生得分的DOM元素
+        const scoreElement = document.getElementById('score');
+        
+        // 假设学生ID为1，你可以从页面或其他地方动态获取学生ID
+        const studentId = localStorage.getItem('studentId');
+        if(!studentId){
+            alert('请先以学生身份登录');
+        }
+        // 请求API获取得分
+        fetch(`http://localhost:8080/api/displayScore?studentId=${studentId}`)
+            .then(response => response.json())  // 将响应解析为JSON
+            .then(response => {
+                if (response.code === 100) {
+                    // 如果请求成功，更新页面中的分数
+                    scoreElement.textContent = response.data.score || '--';
+                } else {
+                    // 如果API返回错误，显示两个横杠
+                    scoreElement.textContent = '--';
+                }
+            })
+        .catch(error => {
+            console.error('Error fetching score:', error);
+            // 请求失败时显示两个横杠
+            scoreElement.textContent = '--';
+        });
+    })();
+    // 定义调用API的函数
+    function callAPI() {
+        // 获取存储在 localStorage 中的 studentId
+        var localStudentId = localStorage.getItem('studentId');
+        // 检查 studentId 是否存在，如果不存在，提示用户需要登录
+        if (!localStudentId) {
+            alert("请先登录");
+            return;  // 如果没有登录，终止上传功能
+        }
+
+        // 创建请求数据
+        const data = {
+            studentId: localStudentId
+        };
+
+        // 使用 fetch 发送 POST 请求
+        fetch('http://localhost:8080/api/student/submit', {
+            method: 'POST', // 指定请求方法为 POST
+            headers: {
+                'Content-Type': 'application/json' // 设置请求头，指定请求体内容类型为 JSON
+            },
+            body: JSON.stringify(data) // 将数据序列化为 JSON 字符串
+        })
+            .then(response => response.json()) // 将响应解析为 JSON
+            .then(response => {
+                // 成功处理
+                if (response.code === 100) {
+                    alert('提交成功'); // 显示成功消息
+                } else {
+                    alert('提交失败，请重试');
+                }  
+            })
+        .catch(error => {
+            // 错误处理
+            console.error('上传请求失败:', error);
+            alert('上传请求失败，请稍后再试');
+        });
+    }
+
+    // 初始化上传功能（Eadmin.upload部分保持不变）
+    (() => {
+        Eadmin.upload('#upload-1', {
+            api: 'api/upload',  // 上传接口地址
+        });
+    })();
+</script>

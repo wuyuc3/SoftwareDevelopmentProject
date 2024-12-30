@@ -1,0 +1,165 @@
+<!DOCTYPE html> 
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>毕业设计系统登录</title>
+    <link href="./static/css/eadmin_light.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href=./static/img/favicon.ico>
+</head>
+
+<body id="login">
+    <!-- 大盒子 -->
+    <div class="col-6 nav"></div>
+    <div class="block">
+        <button class="hl" style="margin-left: 550px;" onclick="window.location.href = './student.html'">学生登录</button>
+        <button class="hl" style="margin-left: 10px;" onclick="window.location.href = './teacher.html'">教师登录</button>
+        <button class="hl" style="margin-left: 10px;" onclick="window.location.href = './committee.html'">委员会登录</button>
+        <button class="hl" style="margin-left: 10px;" onclick="window.location.href = './auditor.html'">审核员登录</button>
+    </div>
+    <div class="block-box">
+        <div class="block">
+            <form id="loginForm">
+                <div class="main-title">
+                    毕业设计系统登录
+                </div>
+                <div class="sub-title">
+                    委员会登录
+                </div>
+                <!-- 表单组盒子 -->
+                <div class="form-group">
+                    <input 
+                        name="uname" 
+                        type="text" 
+                        placeholder="请输入账号" 
+                        autocomplete="off"
+                        data-validate="require" 
+                        data-validate-msg="请输入账号"
+                    >
+                </div>
+                <!-- 表单组盒子 -->
+                <div class="form-group">
+                    <input 
+                        name="pword" 
+                        type="password" 
+                        autocomplete="off"
+                        placeholder="请输入密码" 
+                        data-validate="require" 
+                        data-validate-msg="请输入密码"
+                    >
+                </div>
+                <button 
+                    class="hl" 
+                    type="button" 
+                    onclick="login()">登 录</button>
+            </form>
+        </div>
+    </div>
+</body>
+<script src="./static/js/core/al.load.min.js" init="./static/js/core/al.init.min.js"></script>
+<script>
+    var module = {
+        // 以下配置已是最精简配置，不要删除其中的项目
+        conf : {
+            // 启动页
+            'homepage'           : false,
+            // 页面内文本可选
+            'allow_select_text'  : true,
+            // 允许右键
+            'allow_right_click'  : true,
+            // 全局消息默认距离顶部的距离，单位px
+            'message_top'        : 80,
+            // 全局消息默认显示时长，单位秒
+            'message_duration'   : 2,
+            // 发送HTTP请求时的通用参数
+            'http' : {
+                // 通用接口地址
+                baseURL : '',
+                // 请求超时
+                timeout : 4000,
+                // 自定义请求头
+                headers : {
+                    'Content-Type' : 'application/x-www-form-urlencoded'
+                },
+                // API接口返回的code码的字段名
+                code_field   : 'code',
+                // API接口返回代表成功的code码的值
+                code_success : 100,
+                // API接口返回的处理结果内容的字段名
+                //msg_field    : 'msg',
+                // API接口返回的数据体的字段名
+                data_field   : 'data'
+            }
+        },
+        // 加载依赖框架
+        framework: {
+            'jquery' : '3.4.0',
+            'eadmin' : '1.0.1',
+            'lodash' : '4.17.11',
+            'axios'  : '0.19.0'
+        },
+        // 默认加载的类库，如果用不到可以在此删除
+        lib : [
+            // 类库
+            'lib'
+        ],
+        // 数据
+        data : [
+            // 不需要mock数据可删除
+            'mock.js'
+        ],
+        // 插件
+        plugin : [
+            // 不需要mock数据可删除
+            'mock'
+        ]
+    }
+    function login() {
+        // 获取表单数据
+        const uname = document.querySelector('input[name="uname"]').value;
+        const pword = document.querySelector('input[name="pword"]').value;
+
+        // 校验输入是否为空
+        if (!uname || !pword) {
+            alert("请输入用户名和密码！");
+            return;
+        }
+
+        // 准备请求数据
+        const loginData = {
+            uname: uname,
+            pword: pword
+        };
+
+        // 发起API请求
+        fetch('http://localhost:8080/api/login/committee', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',  // 请求头设置为 JSON 格式
+                },
+                body: JSON.stringify(loginData)  // 将请求数据转为 JSON 格式
+            })
+            .then(response => response.json())  // 将响应转为 JSON 格式
+            .then(response => {
+                if (response.code === 100) {
+                    // 登录成功，跳转到学生首页
+                    alert("登录成功！");
+                    localStorage.clear();
+                    window.location.href = 'index.html'; // 假设登录后跳转到学生首页
+                } else if (response.code === 101) {
+                    // 登录失败，提示错误信息
+                    alert(response.data.message || "登录失败！");
+                } else {
+                    // 其他未定义的错误
+                    alert("发生未知错误！");
+                }
+            })
+            .catch(error => {
+                // 网络请求出错
+                alert("请求失败，请稍后重试！");
+                console.error(error);
+            });
+    }
+</script>
+</html>
